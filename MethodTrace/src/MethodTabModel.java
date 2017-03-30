@@ -5,7 +5,7 @@ import javax.swing.table.AbstractTableModel;
 
 public class MethodTabModel extends AbstractTableModel {
 	private ArrayList<InfoBean> content = new ArrayList<InfoBean>();
-	private String[] columns = new String[] { "id", "Time(us)", "Method" };
+	private String[] columns = new String[] { "id", "Time(¦Ìs)", "Method" };
 
 	public MethodTabModel() {
 
