@@ -10,6 +10,7 @@
 # 注意点
  - 建议在`jdk 1.8`环境下运行,如是1.7及以下的jdk,请自行修改代码兼容
  - 目前该小工具可使用于Windows平台下,Mac及Linux可自行修改代码兼容(目前无Mac设备，无法测试-_-!)
+>Mac下可通过 `java -jar MethodTime-trace-analysis.jar`执行
  - 需先将`dmtracedump`添加至环境变量
  - 方法耗时的单位为`μs`
  - `unknow`意味着该方法未结束调用
