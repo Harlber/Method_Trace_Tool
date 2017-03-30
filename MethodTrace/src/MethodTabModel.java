@@ -5,7 +5,7 @@ import javax.swing.table.AbstractTableModel;
 
 public class MethodTabModel extends AbstractTableModel {
 	private ArrayList<InfoBean> content = new ArrayList<InfoBean>();
-	private String[] columns = new String[] { "id", "Method", "Time(us)" };
+	private String[] columns = new String[] { "id", "Time(us)", "Method" };
 
 	public MethodTabModel() {
 
@@ -28,13 +28,14 @@ public class MethodTabModel extends AbstractTableModel {
 		case 0:
 			return bean.gettId();
 		case 1:
-			return bean.getKey().replaceAll("[.]{2,}+", "");
-		case 2: {
 			if (bean.getXitTime() == 0) {
 				return "unknown";
 			} else {
 				return bean.getXitTime() - bean.getEntTime();
 			}
+		case 2: {
+			return bean.getKey().replaceAll("[.]{2,}+", "");
+
 		}
 		}
 		return null;

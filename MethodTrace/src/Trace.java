@@ -90,6 +90,7 @@ public class Trace {
 		JTable table = new JTable(new MethodTabModel());
 		JScrollPane scrollPane = new JScrollPane(table);
 		root.add(scrollPane, BorderLayout.CENTER);
+		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
 		jGo.addActionListener(new ActionListener() {
 
@@ -138,17 +139,7 @@ public class Trace {
 			}
 		});
 		window.setVisible(true);
-		/*try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());//当前系统风格
-		} catch (ClassNotFoundException e1) {
-			e1.printStackTrace();
-		} catch (InstantiationException e1) {
-			e1.printStackTrace();
-		} catch (IllegalAccessException e1) {
-			e1.printStackTrace();
-		} catch (UnsupportedLookAndFeelException e1) {
-			e1.printStackTrace();
-		}*/
+		
 	}
 
 }
