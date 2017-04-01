@@ -5,11 +5,14 @@ import java.awt.Font;
 import java.awt.LayoutManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -45,10 +48,17 @@ public class Trace {
 		window.setResizable(false);// 窗体大小不可变
 
 		JMenuBar menubar = new JMenuBar();
+
 		JMenu menuFile = new JMenu("File");
 		menubar.add(menuFile);
 		JMenuItem itemOpen = new JMenuItem("Open");
 		menuFile.add(itemOpen);
+
+		JMenu menuAbout = new JMenu("About");
+		JMenuItem itemAbout = new JMenuItem("About Me");
+		menuAbout.add(itemAbout);
+		menubar.add(menuAbout);
+
 		window.setJMenuBar(menubar);
 
 		JPanel panel = new JPanel();
@@ -91,6 +101,40 @@ public class Trace {
 		JScrollPane scrollPane = new JScrollPane(table);
 		root.add(scrollPane, BorderLayout.CENTER);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+		table.addMouseListener(new MouseListener() {
+			
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(e.getClickCount() ==2){//
+					System.out.println("双击");
+				}
+				
+			}
+		});
 
 		jGo.addActionListener(new ActionListener() {
 
@@ -114,9 +158,37 @@ public class Trace {
 					scanner.setPackageName(jpName.getText());
 					jlStatus.setText("analysis...");
 					MethodTabModel model = (MethodTabModel) table.getModel();
-					model.setContent(Utils.mapConvert2Array(scanner
-							.convertFile(JlPath.getText())));
+					ArrayList<InfoBean> tableArray = Utils
+							.mapConvert2Array(scanner.convertFile(JlPath
+									.getText()));
+					ArrayList<InfoBean> xmlBean = new ArrayList<InfoBean>();
+					xmlBean.addAll(tableArray);
+					model.setContent(tableArray);
 					Utils.fitTableColumns(table);
+					for (int i = 0; i < xmlBean.size(); i++) {
+						System.out.println("");
+					}
+				}
+			}
+		});
+
+		itemAbout.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Object[] options = { "Go", "No！" };
+				int n = JOptionPane
+						.showOptionDialog(null,
+								"Visit me :https://github.com/Harlber",
+								"About Me", JOptionPane.YES_NO_OPTION,
+								JOptionPane.QUESTION_MESSAGE, null, options,
+								options[0]);
+				if (n == 0) {
+					try {
+						Utils.browse("https://github.com/Harlber");
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
 				}
 			}
 		});
@@ -139,7 +211,6 @@ public class Trace {
 			}
 		});
 		window.setVisible(true);
-		
 	}
-
+	
 }

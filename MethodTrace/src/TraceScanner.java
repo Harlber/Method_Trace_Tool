@@ -61,8 +61,8 @@ public class TraceScanner {
 				while ((lineTxt = br.readLine()) != null) {
 					if (lineTxt.contains(packageName)
 							|| lineTxt.contains(oName)) {
-						System.out.println(lineTxt);
-						result = Utils.convert2Tab(result, lineTxt);
+						//System.out.println(lineTxt);
+						result = Utils.convert2Tab(result, lineTxt.replaceAll("[.]{2,}+", ""));
 						index.add(lineTxt + "\n");
 					}
 				}

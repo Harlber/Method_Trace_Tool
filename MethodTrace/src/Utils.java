@@ -1,3 +1,4 @@
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Enumeration;
@@ -20,21 +21,25 @@ public class Utils {
 		return result;
 	}
 
+	@SuppressWarnings("finally")
 	public static String getPackageName(String str) {
 		if (null == str || str.equals("")) {
 			return "";
 		}
 		String result = "";
-		if (System.getProperty("os.name").contains("Windows")
-				|| System.getProperty("os.name").contains("windows")) {
-			int start = str.lastIndexOf("\\");
+		int start = 0;
+		try {
+			if (System.getProperty("os.name").contains("Windows")
+					|| System.getProperty("os.name").contains("windows")) {
+				start = str.lastIndexOf("\\");
+			} else {
+				start = str.lastIndexOf("//");
+			}
 			int end = str.indexOf("_");
 			result = str.substring(start + 1, end);
-			return result;
-		} else {
-			int start = str.lastIndexOf("//");
-			int end = str.indexOf("_");
-			result = str.substring(start + 1, end);
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
 			return result;
 		}
 	}
@@ -78,6 +83,7 @@ public class Utils {
 			} else {
 				bean.setXitTime(Integer.valueOf(str[2]));
 			}
+			fillClassInfo(index, bean);
 			keyInfo.replace(key.toString(), bean);
 		} else {
 			InfoBean bean = new InfoBean();
@@ -89,10 +95,40 @@ public class Utils {
 			} else {
 				bean.setXitTime(Integer.valueOf(str[2]));
 			}
+			fillClassInfo(index, bean);
 			keyInfo.put(key.toString(), bean);
 		}
 		return keyInfo;
 
+	}
+
+	/* 坑点：内部类 adapter$1.ViewHolder */
+	static void fillClassInfo(String index, InfoBean info) {
+		// unknown ent 0 exec dmtracedump exception
+		if (index.indexOf("java") < 0 && index.contains("dmtracedump")) {
+			info.setClsName("Exception");
+			info.setMethodName(index);
+		} else {
+			String[] names = index.split("\t");
+			String classInfo = names[names.length - 1];
+			String className = classInfo.substring(0, classInfo.indexOf("."));
+			String class_pot = className + ".";
+			String class_$ = className + "$";
+
+			String methodName = "";
+			String methodStr = names[names.length - 2];
+
+			int dexPot = methodStr.indexOf(class_pot);
+			int dex$ = methodStr.indexOf(class_$);
+			methodName = methodStr.substring(Math.max(dexPot, dex$),
+					methodStr.length());
+
+			info.setClsName(className);
+			info.setMethodName(methodName);
+			info.setFullClassName(info.getKey().substring(0,
+					info.getKey().indexOf(className))
+					+ className);
+		}
 	}
 
 	public static ArrayList<InfoBean> mapConvert2Array(
@@ -129,6 +165,39 @@ public class Utils {
 			}
 			header.setResizingColumn(column); // 此行很重要
 			column.setWidth(width + myTable.getIntercellSpacing().width + 4);// 使表格看起来不是那么拥挤，起到间隔作用
+		}
+	}
+
+	public static void browse(String url) throws Exception {
+		// 获取操作系统的名字
+		String osName = System.getProperty("os.name", "");
+		if (osName.startsWith("Mac OS")) {
+			// 苹果的打开方式
+			Class fileMgr = Class.forName("com.apple.eio.FileManager");
+			Method openURL = fileMgr.getDeclaredMethod("openURL",
+					new Class[] { String.class });
+			openURL.invoke(null, new Object[] { url });
+		} else if (osName.startsWith("Windows")) {
+			// windows的打开方式。
+			Runtime.getRuntime().exec(
+					"rundll32 url.dll,FileProtocolHandler " + url);
+		} else {
+			// Unix or Linux的打开方式
+			String[] browsers = { "firefox", "opera", "konqueror", "epiphany",
+					"mozilla", "netscape" };
+			String browser = null;
+			for (int count = 0; count < browsers.length && browser == null; count++)
+				// 执行代码，在brower有值后跳出，
+				// 这里是如果进程创建成功了，==0是表示正常结束。
+				if (Runtime.getRuntime()
+						.exec(new String[] { "which", browsers[count] })
+						.waitFor() == 0)
+					browser = browsers[count];
+			if (browser == null)
+				throw new Exception("Could not find web browser");
+			else
+				// 这个值在上面已经成功的得到了一个进程。
+				Runtime.getRuntime().exec(new String[] { browser, url });
 		}
 	}
 
