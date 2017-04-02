@@ -3,6 +3,11 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.LayoutManager;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.dnd.DnDConstants;
+import java.awt.dnd.DropTarget;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -16,6 +21,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -39,13 +45,15 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.table.TableColumn;
 
 public class Trace {
+
+	static JLabel JlPath;
 	public static void main(String[] args) {
 		String packageName = null;
 
 		JFrame window = new JFrame("App method trace analysis");
 		window.setSize(1280, 600);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		window.setResizable(false);// �����С���ɱ�
+		window.setResizable(false);// 窗体大小不可变
 
 		JMenuBar menubar = new JMenuBar();
 
@@ -71,16 +79,17 @@ public class Trace {
 		JPanel path = new JPanel();
 		path.setLayout((LayoutManager) new FlowLayout(FlowLayout.LEFT, 10, 5));
 		path.add(new JLabel("File Path:"));
-		JLabel JlPath = new JLabel("...");
+		JlPath = new JLabel("........................................................................");
 		path.add(JlPath);
 		panel.add(path);
+		drag();//启用拖拽
 
 		JPanel top = new JPanel();
 		top.setLayout((LayoutManager) new FlowLayout(FlowLayout.LEFT, 10, 5));
 		top.add(new JLabel("Filter Package Name:"));
 		JTextField jpName = new JTextField("package name", 30);// com.jushi.trading
 		jpName.setBounds(10, 10, 100, 20);
-		// �����ı���ˮƽ���뷽ʽ
+		// 设置文本的水平对齐方式
 		jpName.setHorizontalAlignment(JTextField.CENTER);
 		top.add(jpName, BorderLayout.PAGE_START);
 		JButton jGo = new JButton("analysis");
@@ -102,37 +111,37 @@ public class Trace {
 		root.add(scrollPane, BorderLayout.CENTER);
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.addMouseListener(new MouseListener() {
-			
+
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void mousePressed(MouseEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void mouseExited(MouseEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void mouseEntered(MouseEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if(e.getClickCount() ==2){//
-					System.out.println("˫��");
+					System.out.println("双击");
 				}
-				
+
 			}
 		});
 
@@ -140,21 +149,21 @@ public class Trace {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if (JlPath.getText().equals("...")) {
-					JOptionPane.showMessageDialog(root, "�뵼��trace�ļ�", "��ʾ��Ϣ",
+				if (JlPath.getText().equals("........................................................................")) {
+					JOptionPane.showMessageDialog(root, "请导入trace文件", "提示消息",
 							JOptionPane.WARNING_MESSAGE);
 				} else if (!JlPath.getText().endsWith("trace")) {
-					JOptionPane.showMessageDialog(root, "�뵼����Ч��trace�ļ�",
-							"��ʾ��Ϣ", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(root, "请导入有效的trace文件",
+							"提示消息", JOptionPane.WARNING_MESSAGE);
 				} else if (jpName.getText().equals("package name")
 						|| jpName.getText().equals("")) {
-					JOptionPane.showMessageDialog(root, "����������˵İ���", "��ʾ��Ϣ",
+					JOptionPane.showMessageDialog(root, "请输入需过滤的包名", "提示消息",
 							JOptionPane.WARNING_MESSAGE);
 				} else {
 
 					TraceScanner scanner = new TraceScanner(new File(JlPath
 							.getText()));
-					// ��ֵ
+					// 赋值
 					scanner.setPackageName(jpName.getText());
 					jlStatus.setText("analysis...");
 					MethodTabModel model = (MethodTabModel) table.getModel();
@@ -176,7 +185,7 @@ public class Trace {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				Object[] options = { "Go", "No��" };
+				Object[] options = { "Go", "No！" };
 				int n = JOptionPane
 						.showOptionDialog(null,
 								"Visit me :https://github.com/Harlber",
@@ -199,12 +208,12 @@ public class Trace {
 			public void actionPerformed(ActionEvent arg0) {
 				JFileChooser jfc = new JFileChooser();
 				jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-				jfc.showDialog(new JLabel(), "ѡ��");
+				jfc.showDialog(new JLabel(), "选择");
 				File file = jfc.getSelectedFile();
 				if (file.isDirectory()) {
-					System.out.println("�ļ���:" + file.getAbsolutePath());
+					System.out.println("文件夹:" + file.getAbsolutePath());
 				} else if (file.isFile()) {
-					System.out.println("�ļ�:" + file.getAbsolutePath());
+					System.out.println("文件:" + file.getAbsolutePath());
 				}
 				JlPath.setText(file.getAbsolutePath());
 				jpName.setText(Utils.getPackageName(file.getAbsolutePath()));
@@ -212,5 +221,41 @@ public class Trace {
 		});
 		window.setVisible(true);
 	}
-	
+
+
+
+	public static void drag()//定义的拖拽方法
+	{
+		//panel表示要接受拖拽的控件
+		new DropTarget(JlPath, DnDConstants.ACTION_COPY_OR_MOVE, new DropTargetAdapter()
+		{
+			public void drop(DropTargetDropEvent dtde)//重写适配器的drop方法
+			{
+				try
+				{
+					if (dtde.isDataFlavorSupported(DataFlavor.javaFileListFlavor))//如果拖入的文件格式受支持
+					{
+						dtde.acceptDrop(DnDConstants.ACTION_COPY_OR_MOVE);//接收拖拽来的数据
+						List<File> list =  (List<File>) (dtde.getTransferable().getTransferData(DataFlavor.javaFileListFlavor));
+						String temp="";
+						for(File file:list){
+							temp=file.getAbsolutePath();
+							((JLabel) JlPath).setText(temp);
+							break;
+						}
+						//JOptionPane.showMessageDialog(null, temp);
+						dtde.dropComplete(true);//指示拖拽操作已完成
+					}
+					else
+					{
+						dtde.rejectDrop();//否则拒绝拖拽来的数据
+					}
+				}
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+			}
+		});
+	}
 }
