@@ -11,194 +11,224 @@ import javax.swing.table.TableColumn;
 
 public class Utils {
 
-	public static String getWinCommand(String path) {
-		return "dmtracedump -o " + path;
-	}
+    public static String getWinCommand(String path) {
+        return "dmtracedump -o " + path;
+    }
 
-	public static String[] getMacCommand(String path) {
-		String dumpCmd = "dmtracedump -o " + path;
-		String[] result = { "bash", "-c", dumpCmd };
-		return result;
-	}
+    public static String[] getMacCommand(String path) {
+        String dumpCmd = "dmtracedump -o " + path;
+        String[] result = {"bash", "-c", dumpCmd};
+        return result;
+    }
 
-	@SuppressWarnings("finally")
-	public static String getPackageName(String str) {
-		if (null == str || str.equals("")) {
-			return "";
-		}
-		String result = "";
-		int start = 0;
-		try {
-			if (System.getProperty("os.name").contains("Windows")
-					|| System.getProperty("os.name").contains("windows")) {
-				start = str.lastIndexOf("\\");
-			} else {
-				start = str.lastIndexOf("//");
-			}
-			int end = str.indexOf("_");
-			result = str.substring(start + 1, end);
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			return result;
-		}
-	}
+    @SuppressWarnings("finally")
+    public static String getPackageName(String str) {
+        if (null == str || str.equals("")) {
+            return "";
+        }
+        String result = "";
+        int start = 0;
+        try {
+            if (System.getProperty("os.name").contains("Windows")
+                    || System.getProperty("os.name").contains("windows")) {
+                start = str.lastIndexOf("\\");
+            } else if (isMacOS()) {
+                start = str.lastIndexOf("/");
+            } else {
+                start = str.lastIndexOf("//");
+            }
+            int end = str.indexOf("_");
+            result = str.substring(start + 1, end);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            return result;
+        }
+    }
 
-	public static String[] removeArrayEmptyTextBackNewArray(String[] strArray) {
-		List<String> strList = Arrays.asList(strArray);
-		List<String> strListNew = new ArrayList<>();
-		for (int i = 0; i < strList.size(); i++) {
-			if (strList.get(i) != null && !strList.get(i).equals("")) {
-				strListNew.add(strList.get(i));
-			}
-		}
-		String[] strNewArray = strListNew
-				.toArray(new String[strListNew.size()]);
-		return strNewArray;
-	}
+    public static String[] removeArrayEmptyTextBackNewArray(String[] strArray) {
+        List<String> strList = Arrays.asList(strArray);
+        List<String> strListNew = new ArrayList<>();
+        for (int i = 0; i < strList.size(); i++) {
+            if (strList.get(i) != null && !strList.get(i).equals("")) {
+                strListNew.add(strList.get(i));
+            }
+        }
+        String[] strNewArray = strListNew
+                .toArray(new String[strListNew.size()]);
+        return strNewArray;
+    }
 
-	public static HashMap<String, InfoBean> convert2Tab(
-			HashMap<String, InfoBean> keyInfo, String index) {
+    public static HashMap<String, InfoBean> convert2Tab(
+            HashMap<String, InfoBean> keyInfo, String index) {
 
-		String[] indexStr = index.split(" ");// replaceAll("[.]+", "")
-		String[] str = removeArrayEmptyTextBackNewArray(indexStr);
-		if (str.length > 6) {
-			for (int i = 0; i < str.length; i++)
-				System.out.println(str[i]);
-		}
-		/*
-		 * System.out.println("[0]:" + str[0] + "[1]:" + str[1] + "[3]:" +
+        String[] indexStr = index.split(" ");// replaceAll("[.]+", "")
+        String[] str = removeArrayEmptyTextBackNewArray(indexStr);
+        if (str.length > 6) {
+            for (int i = 0; i < str.length; i++)
+                System.out.println(str[i]);
+        }
+        /*
+         * System.out.println("[0]:" + str[0] + "[1]:" + str[1] + "[3]:" +
 		 * str[3] + "length:" + str.length);
 		 */
-		StringBuffer key = new StringBuffer();
-		for (int i = 3; i < str.length; i++) {
-			key.append(str[i]);
-			key.append(" ");
-		}
+        StringBuffer key = new StringBuffer();
+        for (int i = 3; i < str.length; i++) {
+            key.append(str[i]);
+            key.append(" ");
+        }
 
-		if (keyInfo.containsKey(key.toString())) {//
-			InfoBean bean = keyInfo.get(key.toString());
-			if (str[1].equals("ent")) {
-				bean.setXitTime(Integer.valueOf(str[2]));
-			} else {
-				bean.setXitTime(Integer.valueOf(str[2]));
-			}
-			fillClassInfo(index, bean);
-			keyInfo.replace(key.toString(), bean);
-		} else {
-			InfoBean bean = new InfoBean();
-			bean.setKey(key.toString());
-			bean.settId(str[0]);
-			bean.setType(str[1]);
-			if (str[1].equals("ent")) {
-				bean.setEntTime(Integer.valueOf(str[2]));
-			} else {
-				bean.setXitTime(Integer.valueOf(str[2]));
-			}
-			fillClassInfo(index, bean);
-			keyInfo.put(key.toString(), bean);
-		}
-		return keyInfo;
+        if (keyInfo.containsKey(key.toString())) {//
+            InfoBean bean = keyInfo.get(key.toString());
+            if (str[1].equals("ent")) {
+                bean.setXitTime(Integer.valueOf(str[2]));
+            } else {
+                bean.setXitTime(Integer.valueOf(str[2]));
+            }
+            fillClassInfo(index, bean);
+            keyInfo.replace(key.toString(), bean);
+        } else {
+            InfoBean bean = new InfoBean();
+            bean.setKey(key.toString());
+            bean.settId(str[0]);
+            bean.setType(str[1]);
+            if (str[1].equals("ent")) {
+                bean.setEntTime(Integer.valueOf(str[2]));
+            } else {
+                bean.setXitTime(Integer.valueOf(str[2]));
+            }
+            fillClassInfo(index, bean);
+            keyInfo.put(key.toString(), bean);
+        }
+        return keyInfo;
 
-	}
+    }
 
-	/* ¿Óµã£ºÄÚ²¿Àà adapter$1.ViewHolder */
-	static void fillClassInfo(String index, InfoBean info) {
-		// unknown ent 0 exec dmtracedump exception
-		if (index.indexOf("java") < 0 && index.contains("dmtracedump")) {
-			info.setClsName("Exception");
-			info.setMethodName(index);
-		} else {
-			String[] names = index.split("\t");
-			String classInfo = names[names.length - 1];
-			String className = classInfo.substring(0, classInfo.indexOf("."));
-			String class_pot = className + ".";
-			String class_$ = className + "$";
+    /* å‘ç‚¹ï¼šå†…éƒ¨ç±» adapter$1.ViewHolder */
+    static void fillClassInfo(String index, InfoBean info) {
+        if (isEmpty(index)) {
+            return;
+        }
+        Log.e(Log.getTag(), "index:  " + index);
+        // unknown ent 0 exec dmtracedump exception
+        if (index.indexOf("java") < 0 && index.contains("dmtracedump")) {
+            info.setClsName("Exception");
+            info.setMethodName(index);
+        } else {
+            String[] names = index.split("\t");
+            if (names.length < 1) {
+                return;
+            }
+            Log.e(Log.getTag(), "names:  " + names.length);
+            String classInfo = names[names.length - 1];
+            String className;
+            if (classInfo.contains(".")) {
+                className = classInfo.substring(0, classInfo.indexOf("."));
+            } else {
+                className = classInfo;
+            }
+            String class_pot = className + ".";
+            String class_$ = className + "$";
 
-			String methodName = "";
-			String methodStr = names[names.length - 2];
+            String methodName = "";
+            String methodStr = names[names.length - 2];
+            Log.e(Log.getTag(), "methodStr:  " + methodStr);
 
-			int dexPot = methodStr.indexOf(class_pot);
-			int dex$ = methodStr.indexOf(class_$);
-			methodName = methodStr.substring(Math.max(dexPot, dex$),
-					methodStr.length());
 
-			info.setClsName(className);
-			info.setMethodName(methodName);
-			info.setFullClassName(info.getKey().substring(0,
-					info.getKey().indexOf(className))
-					+ className);
-		}
-	}
+            int dexPot = methodStr.indexOf(class_pot);
+            int dex$ = methodStr.indexOf(class_$);
 
-	public static ArrayList<InfoBean> mapConvert2Array(
-			HashMap<String, InfoBean> map) {
-		ArrayList<InfoBean> result = new ArrayList<InfoBean>();
-		for (InfoBean value : map.values()) {
-			result.add(value);
-		}
-		return result;
-	}
+            Log.e(Log.getTag(), "dexPot:  " + dexPot);
+            Log.e(Log.getTag(), "dex$:  " + dex$);
+            int start = Math.max(dexPot, dex$);
+            methodName = methodStr.substring(start < 0 ? 0 : start,
+                    methodStr.length());
 
-	public static void fitTableColumns(JTable myTable) {
+            info.setClsName(className);
+            info.setMethodName(methodName);
+            info.setFullClassName(info.getKey().substring(0,
+                    info.getKey().indexOf(className))
+                    + className);
+        }
+    }
 
-		JTableHeader header = myTable.getTableHeader();
-		int rowCount = myTable.getRowCount();
-		Enumeration columns = myTable.getColumnModel().getColumns();
-		while (columns.hasMoreElements()) {
-			TableColumn column = (TableColumn) columns.nextElement();
-			int col = header.getColumnModel().getColumnIndex(
-					column.getIdentifier());
-			int width = (int) myTable
-					.getTableHeader()
-					.getDefaultRenderer()
-					.getTableCellRendererComponent(myTable,
-							column.getIdentifier(), false, false, -1, col)
-					.getPreferredSize().getWidth();
-			for (int row = 0; row < rowCount; row++) {
-				int preferedWidth = (int) myTable
-						.getCellRenderer(row, col)
-						.getTableCellRendererComponent(myTable,
-								myTable.getValueAt(row, col), false, false,
-								row, col).getPreferredSize().getWidth();
-				width = Math.max(width, preferedWidth);
-			}
-			header.setResizingColumn(column); // ´ËÐÐºÜÖØÒª
-			column.setWidth(width + myTable.getIntercellSpacing().width + 4);// Ê¹±í¸ñ¿´ÆðÀ´²»ÊÇÄÇÃ´Óµ¼·£¬Æðµ½¼ä¸ô×÷ÓÃ
-		}
-	}
+    public static ArrayList<InfoBean> mapConvert2Array(
+            HashMap<String, InfoBean> map) {
+        ArrayList<InfoBean> result = new ArrayList<InfoBean>();
+        for (InfoBean value : map.values()) {
+            result.add(value);
+        }
+        return result;
+    }
 
-	public static void browse(String url) throws Exception {
-		// »ñÈ¡²Ù×÷ÏµÍ³µÄÃû×Ö
-		String osName = System.getProperty("os.name", "");
-		if (osName.startsWith("Mac OS")) {
-			// Æ»¹ûµÄ´ò¿ª·½Ê½
-			Class fileMgr = Class.forName("com.apple.eio.FileManager");
-			Method openURL = fileMgr.getDeclaredMethod("openURL",
-					new Class[] { String.class });
-			openURL.invoke(null, new Object[] { url });
-		} else if (osName.startsWith("Windows")) {
-			// windowsµÄ´ò¿ª·½Ê½¡£
-			Runtime.getRuntime().exec(
-					"rundll32 url.dll,FileProtocolHandler " + url);
-		} else {
-			// Unix or LinuxµÄ´ò¿ª·½Ê½
-			String[] browsers = { "firefox", "opera", "konqueror", "epiphany",
-					"mozilla", "netscape" };
-			String browser = null;
-			for (int count = 0; count < browsers.length && browser == null; count++)
-				// Ö´ÐÐ´úÂë£¬ÔÚbrowerÓÐÖµºóÌø³ö£¬
-				// ÕâÀïÊÇÈç¹û½ø³Ì´´½¨³É¹¦ÁË£¬==0ÊÇ±íÊ¾Õý³£½áÊø¡£
-				if (Runtime.getRuntime()
-						.exec(new String[] { "which", browsers[count] })
-						.waitFor() == 0)
-					browser = browsers[count];
-			if (browser == null)
-				throw new Exception("Could not find web browser");
-			else
-				// Õâ¸öÖµÔÚÉÏÃæÒÑ¾­³É¹¦µÄµÃµ½ÁËÒ»¸ö½ø³Ì¡£
-				Runtime.getRuntime().exec(new String[] { browser, url });
-		}
-	}
+    public static void fitTableColumns(JTable myTable) {
+
+        JTableHeader header = myTable.getTableHeader();
+        int rowCount = myTable.getRowCount();
+        Enumeration columns = myTable.getColumnModel().getColumns();
+        while (columns.hasMoreElements()) {
+            TableColumn column = (TableColumn) columns.nextElement();
+            int col = header.getColumnModel().getColumnIndex(
+                    column.getIdentifier());
+            int width = (int) myTable
+                    .getTableHeader()
+                    .getDefaultRenderer()
+                    .getTableCellRendererComponent(myTable,
+                            column.getIdentifier(), false, false, -1, col)
+                    .getPreferredSize().getWidth();
+            for (int row = 0; row < rowCount; row++) {
+                int preferedWidth = (int) myTable
+                        .getCellRenderer(row, col)
+                        .getTableCellRendererComponent(myTable,
+                                myTable.getValueAt(row, col), false, false,
+                                row, col).getPreferredSize().getWidth();
+                width = Math.max(width, preferedWidth);
+            }
+            header.setResizingColumn(column); // æ­¤è¡Œå¾ˆé‡è¦
+            column.setWidth(width + myTable.getIntercellSpacing().width + 4);// ä½¿è¡¨æ ¼çœ‹èµ·æ¥ä¸æ˜¯é‚£ä¹ˆæ‹¥æŒ¤ï¼Œèµ·åˆ°é—´éš”ä½œç”¨
+        }
+    }
+
+    public static void browse(String url) throws Exception {
+        // èŽ·å–æ“ä½œç³»ç»Ÿçš„åå­—
+        String osName = System.getProperty("os.name", "");
+        if (osName.startsWith("Mac OS")) {
+            // è‹¹æžœçš„æ‰“å¼€æ–¹å¼
+            Class fileMgr = Class.forName("com.apple.eio.FileManager");
+            Method openURL = fileMgr.getDeclaredMethod("openURL",
+                    new Class[]{String.class});
+            openURL.invoke(null, new Object[]{url});
+        } else if (osName.startsWith("Windows")) {
+            // windowsçš„æ‰“å¼€æ–¹å¼ã€‚
+            Runtime.getRuntime().exec(
+                    "rundll32 url.dll,FileProtocolHandler " + url);
+        } else {
+            // Unix or Linuxçš„æ‰“å¼€æ–¹å¼
+            String[] browsers = {"firefox", "opera", "konqueror", "epiphany",
+                    "mozilla", "netscape"};
+            String browser = null;
+            for (int count = 0; count < browsers.length && browser == null; count++)
+                // æ‰§è¡Œä»£ç ï¼Œåœ¨broweræœ‰å€¼åŽè·³å‡ºï¼Œ
+                // è¿™é‡Œæ˜¯å¦‚æžœè¿›ç¨‹åˆ›å»ºæˆåŠŸäº†ï¼Œ==0æ˜¯è¡¨ç¤ºæ­£å¸¸ç»“æŸã€‚
+                if (Runtime.getRuntime()
+                        .exec(new String[]{"which", browsers[count]})
+                        .waitFor() == 0)
+                    browser = browsers[count];
+            if (browser == null)
+                throw new Exception("Could not find web browser");
+            else
+                // è¿™ä¸ªå€¼åœ¨ä¸Šé¢å·²ç»æˆåŠŸçš„å¾—åˆ°äº†ä¸€ä¸ªè¿›ç¨‹ã€‚
+                Runtime.getRuntime().exec(new String[]{browser, url});
+        }
+    }
+
+
+    public static boolean isMacOS() {
+        return System.getProperty("os.name", "").startsWith("Mac OS");
+    }
+
+    public static boolean isEmpty(String s) {
+        return s == null || s.isEmpty();
+    }
 
 }

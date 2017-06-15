@@ -3,55 +3,57 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+/**
+ * å†…å®¹æ˜¾ç¤ºé¢æ¿Tabæ 
+ */
 public class MethodTabModel extends AbstractTableModel {
-	private ArrayList<InfoBean> content = new ArrayList<InfoBean>();
-	private String[] columns = new String[] { "Thread", "Time(¦Ìs)", "Class",
-			"Method" };
+    private ArrayList<InfoBean> content = new ArrayList<InfoBean>();
+    private String[] columns = new String[]{"Thread", "Time(Î¼s)", "Class", "Method"};
 
-	public MethodTabModel() {
+    public MethodTabModel() {
 
-	}
+    }
 
-	@Override
-	public int getRowCount() {// ĞĞÊı
-		return content.size();
-	}
+    @Override
+    public int getRowCount() {// è¡Œæ•°
+        return content.size();
+    }
 
-	@Override
-	public int getColumnCount() {// ÁĞÊı
-		return columns.length;
-	}
+    @Override
+    public int getColumnCount() {// åˆ—æ•°
+        return columns.length;
+    }
 
-	@Override
-	public Object getValueAt(int rowIndex, int columnIndex) {
-		InfoBean bean = this.content.get(rowIndex);
-		switch (columnIndex) {// Ã¿¸öÁĞÏÔÊ¾µÄÄÚÈİ¶¨ÖÆ
-		case 0:
-			return bean.gettId();
-		case 1:
-			if (bean.getXitTime() == 0) {
-				return "unknown";
-			} else {
-				return bean.getXitTime() - bean.getEntTime();
-			}
-		case 2:
-			return bean.getFullClassName();
-		case 3:
-			return bean.getMethodName();
-			
-		}
-		return null;
-	}
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        InfoBean bean = this.content.get(rowIndex);
+        switch (columnIndex) {// æ¯ä¸ªåˆ—æ˜¾ç¤ºçš„å†…å®¹å®šåˆ¶
+            case 0:
+                return bean.gettId();
+            case 1:
+                if (bean.getXitTime() == 0) {
+                    return "unknown";
+                } else {
+                    return bean.getXitTime() - bean.getEntTime();
+                }
+            case 2:
+                return bean.getFullClassName();
+            case 3:
+                return bean.getMethodName();
 
-	@Override
-	public String getColumnName(int column) {
-		return columns[column];
-	}
+        }
+        return null;
+    }
 
-	public void setContent(List<InfoBean> content) {
-		this.content.clear();
-		this.content.addAll(content);
-		fireTableDataChanged();
-	}
+    @Override
+    public String getColumnName(int column) {
+        return columns[column];
+    }
+
+    public void setContent(List<InfoBean> content) {
+        this.content.clear();
+        this.content.addAll(content);
+        fireTableDataChanged();
+    }
 
 }
